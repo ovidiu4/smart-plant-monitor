@@ -1,5 +1,11 @@
 # ESP32 Powered Smart Plant Monitor
 
+
+
+**Hello. This project is ongoing, therefore changes will be frequent.**
+
+
+
 Back of the main board. Features:
 - ESP32-S3 supports capacitance measuring directly, through the touchpad circuitry
 - TP4056 charging + protection circuit
