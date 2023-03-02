@@ -4,7 +4,12 @@
 
 **Hello. This project is ongoing, therefore changes will be frequent.**
 
-
+Overall features:
+- Low power
+- Rechargeable and programable with Arduino
+- By adding a USB port to a small solar panel you've created a simple add-on 
+- Can communicate via WIFI or Bluetooth
+- One device can stay plugged in all the time (act as hub) while the others send updates to it (low power mode)
 
 Back of the main board. Features:
 - ESP32-S3 supports capacitance measuring directly, through the touchpad circuitry
