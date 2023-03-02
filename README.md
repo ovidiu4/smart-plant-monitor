@@ -5,7 +5,7 @@
 **Hello. This project is ongoing, therefore changes will be frequent.**
 
 Overall features:
-- Low power
+- Low power and small size (45x45x10mm)
 - Rechargeable and programable with Arduino
 - By adding a USB port to a small solar panel you've created a simple add-on 
 - Can communicate via WIFI or Bluetooth
