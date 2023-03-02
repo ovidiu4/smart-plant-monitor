@@ -10,7 +10,7 @@ Back of the main board. Features:
 - Card edge connector for easy and cheap "soil probe" PCB swap
 - 2 GPIO buttons (one connected to GPIO0) and 1 status LED
 
-![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/face.PNG)
+![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/face.PNG)
 
 
 Front of the main board. Features:
@@ -19,7 +19,7 @@ Front of the main board. Features:
 - E-Paper display
 - Slim LiPo battery goes under the display. Could fit up to 4x40x30mm (usually 450-500mAh)
 
-![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/back.PNG)
+![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/back.PNG)
 
 Soil probe. Features:
 - No components and connectors added, just the bare PCB
@@ -27,4 +27,4 @@ Soil probe. Features:
 - Solder pads avaialble if you'd like to add a 0603 component (LED or Thermistor for soil surface temperature). Connected to GPIO through a 2K resistor
 - Can be in any size and shape you'd like as long as the top matches the conector (calibration and adjustments are done in software)
 
-![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/probe.PNG)
+![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/probe.PNG)
