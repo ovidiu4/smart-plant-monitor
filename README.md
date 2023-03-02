@@ -1,1 +1,3 @@
-# smart-plant-monitor
+# ESP32 Powered Smart Plant Monitor
+
+
