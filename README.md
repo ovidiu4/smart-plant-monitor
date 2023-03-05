@@ -4,6 +4,8 @@
 
 **Hello. This project is ongoing, therefore changes will be frequent.**
 
+![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/testing/20230305_194624.jpg)
+
 Overall features:
 - Low power and small size (45x45x10mm)
 - Rechargeable and programable with Arduino
