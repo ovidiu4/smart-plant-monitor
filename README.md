@@ -5,6 +5,7 @@
 **Hello. This project is ongoing, therefore changes will be frequent.**
 
 ![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/testing/20230305_194624.jpg)
+![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/Schematic_Plant%20Monitor%20SMD%20V2_2023-03-12.png)
 
 Overall features:
 - Low power and small size (45x45x10mm)
@@ -23,7 +24,7 @@ Back of the main board. Features:
 - Card edge connector for easy and cheap "soil probe" PCB swap
 - 2 GPIO buttons (one connected to GPIO0) and 1 status LED
 
-![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/face.PNG)
+![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/face_1.2.PNG)
 
 
 Front of the main board. Features:
@@ -32,7 +33,7 @@ Front of the main board. Features:
 - E-Paper display
 - Slim LiPo battery goes under the display. Could fit up to 4x40x30mm (usually 450-500mAh)
 
-![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/back.PNG)
+![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/3D%20render/back_1.2.PNG)
 
 Soil probe. Features:
 - No components and connectors added, just the bare PCB
