@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <title>SMART PLANT WIFI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+  <canvas id="canvas"></canvas>
+    <div>
+    <form action="/wifi" method="POST">
+      <a href="/">HOME</a> | <a href="/wifi">WIFI</a> | <a href="/config">CONFIG HA</a> | <a href="/sensors">SENSORS</a>
+      <br><a href="/firmware">FIRMWARE</a>
+      <h1>WIFI</h1>
+      <br>
+      <b>
+        <label for="SSID">SSID:</label>
+        <br>
+      </b>
+      <input type="text" name="input_ssid" required>
+      <br>
+      <br>
+      <b>
+        <label for="PASSWORD">Password:</label>
+        <br>
+      </b>
+      <input type="password" name="input_password" required>
+      <br>
+      <br>
+      <input type="submit" value="Submit">
+      <br><br><br>
+      <b><font color = "red">%wifi_saved_eeprom%</font></b>
+      <br><br>
+      <b>MAC:</b> %macaddress% <br>
+      <br><br>
+    </form>
+	</div>
+    <script type="text/javascript" src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>SMART PLANT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+  <canvas id="canvas"></canvas>
+    <div>
+    <form action="/firmware" method="POST">
+      <a href="/">HOME</a> | <a href="/wifi">WIFI</a> | <a href="/config">CONFIG</a> | <a href="/sensors">SENSORS</a>
+      <br><a href="/firmware">FIRMWARE</a>
+      <h1>FIRMWARE</h1>
+      <br>
+      <br><b>Server Version:</b>
+      <br>%server_software_version%
+      <br>
+      <br>
+      <br><b>Current Version:</b>
+      <br>%software_version%
+      <br> <br> <br> <b>*** %firmware_status% ***</b> <br> <br>
+      <br>
+      <br><b><font color = "red">DO NOT POWER OFF DEVICE
+      <br>DURING UPDATE</font></b>
+      <br>  
+      <br><br><br><input type="submit" value="%firmware_button%">
+      <br>
+    </form>
+	</div>
+    <script type="text/javascript" src="script.js"></script>
+  </body>
+</html>

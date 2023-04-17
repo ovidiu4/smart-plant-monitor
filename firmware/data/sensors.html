@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <title>SMART PLANT SENSORS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+  <canvas id="canvas"></canvas>
+    <div>
+    <form action="/sensors" method="POST">
+      <a href="/">HOME</a> | <a href="/wifi">WIFI</a> | <a href="/config">CONFIG</a> | <a href="/sensors">SENSORS</a>
+      <br><a href="/firmware">FIRMWARE</a>
+      <h1>SENSORS</h1>
+      <br>
+        <table style="width: 100%%;">
+        <tbody>
+        <tr>
+        <td style="text-align: center; width: 50%%;"><b>Battery Voltage:</b>
+        <br>%battery_voltage%V <br>
+        <br></td>
+        <td style="text-align: center; width: 50%%;"><b>Bus Voltage</b>
+        <br>%bus_voltage%V <br>
+        <br></td>
+        </tr>
+        <tr>
+        <td style="text-align: center; width: 50%%;"><b>Board Temp:</b>
+        <br>%battery_temperature%<br>
+        <br></td>
+        <td style="text-align: center; width: 50%%;"><b>NTC Temp:</b>
+        <br>%soil_temperature% <br>
+        <br></td>
+        </tr>
+        <tr>
+        <td style="text-align: center; width: 50%%;"><b>Air Humidity:</b>
+        <br>%air_humidity%%%<br>
+        <br></td>
+        <td style="text-align: center; width: 50%%;"><b>Air Temp:</b>
+        <br>%air_temperature%<br>
+        <br></td>
+        </tr>
+        <tr>
+        <td style="text-align: center; width: 50%%;"><b>Ambient Light:</b>
+        <br>%ambient_light% <br>
+        <br></td>
+        <td style="text-align: center; width: 50%%;"><b>IR Light:</b>
+        <br>%ir_light% <br>
+        <br></td>
+        </tr>
+         <tr>
+        <td style="text-align: center; width: 50%%;"><b>Soil Probe:</b>
+        <br>%board_check% <br>
+        <br></td>
+        <td style="text-align: center; width: 50%%;"><b>Soil Humidity:</b>
+        <br>%soil_humidity%%% <br>
+        <br></td>
+        </tr>
+        </tbody>
+        </table>
+        <input type="submit" value="REFRESH">
+        <br>
+    </form>
+	</div>
+    <script type="text/javascript" src="script.js"></script>
+  </body>
+</html>
