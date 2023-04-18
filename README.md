@@ -40,4 +40,4 @@ Soil probe. Features:
 - Solder pads avaialble if you'd like to add a 0603 component (LED or Thermistor for soil surface temperature). Connected to GPIO through a 2K resistor
 - Can be in any size and shape you'd like as long as the top matches the conector (calibration and adjustments are done in software)
 
-![](https://github.com/ovidiu4/smart-plant-monitor/blob/main/pictures/presentation.jpg)
+
