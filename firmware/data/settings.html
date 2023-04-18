@@ -1,34 +1,35 @@
 <html>
   <head>
     <link href="style.css" rel="stylesheet" type="text/css">
-    <title>SMART PLANT CONFIG</title>
+    <title>SMART PLANT SETTINGS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
   <canvas id="canvas"></canvas>
     <div>
-    <form action="/config" method="POST">
+    <form action="/settings" method="POST">
       <a href="/">HOME</a> | <a href="/wifi">WIFI</a> | <a href="/config">CONFIG HA</a> | <a href="/sensors">SENSORS</a>
       <br><a href="/settings">SETTINGS</a> | <a href="/firmware">FIRMWARE</a>
-      <h1>CONFIG</h1>
+      <h1>SETTINGS</h1>
       <br>
+	  <br>
+	  <br>
       <b>
-        <label for="url">Home Assistant URL:</label>
+        <label for="url">Update Interval (sec):</label>
         <br>
       </b>
-      <input type="text" name="url" required>
+	  <br>
+      <input type="text" name="update_interval" required>
       <br>
       <br>
-      <b>
-        <label for="api">Home Assistant Token:</label>
-        <br>
-      </b>
-      <input type="text" name="api" required>
+	  
       <br>
       
-      <br><br><b><label for="url">Connection Status:</label></b>
       <br>
-      <br>%connection_status%
+      
+      <br><br>
+      <br>
+      <br>
       <br>
       <br><br>
       <input type="submit" value="Submit">

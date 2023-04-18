@@ -4,5 +4,5 @@ index.html
 script.js
 sensors.html
 style.css
-test.html
 wifi.html
+settings.html
