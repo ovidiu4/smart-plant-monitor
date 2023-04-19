@@ -9,6 +9,9 @@
 3. Restart Arduino and select the custom board "Ovidiu4 Smart Plant Monitor ESP32-S3"
 
 4. Adjust the following settings:
+
    a. USB Mode: Hardware CDC and JTAG
+
    b. CPU Frequency: 80MHz
+
    c. Partition Scheme: Default 4MB with SPIFFS
