@@ -3,9 +3,15 @@
 
 
 **Hello. This project is ongoing, therefore changes will be frequent.**
+
 **Please feel free to use any part of my work for your personal projects. For commercial solutions I'd appreciate a heads up!**
 
 
+
+
+<img src="https://github.com/ovidiu4/smart-plant-monitor/blob/main/pictures/interface/sensors.jpg" width=25.5% height=25.5%>  <img src="https://github.com/ovidiu4/smart-plant-monitor/blob/main/pictures/presentation.jpg" width=30% height=30%>  <img src="https://github.com/ovidiu4/smart-plant-monitor/blob/main/pictures/interface/firmware.jpg" width=25.5% height=25.5%>
+
+ 
 Overall features:
 - Low power and small size (45x45x10mm)
 - Rechargeable and programable with Arduino
