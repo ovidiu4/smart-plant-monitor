@@ -4,7 +4,9 @@
 
 **Hello. This project is ongoing, therefore changes will be frequent.**
 
-**Please feel free to use any part of my work for your personal projects. For commercial solutions I'd appreciate a heads up!**
+**Please feel free to use any part of my work for your personal projects only.**
+
+**For commercial use please contact me!**
 
 
 
