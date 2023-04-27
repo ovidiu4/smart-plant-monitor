@@ -49,3 +49,4 @@ Soil probe. Features:
 - Can be in any size and shape you'd like as long as the top matches the conector (calibration and adjustments are done in software)
 
 
+<img src="https://github.com/ovidiu4/smart-plant-monitor/blob/main/pictures/Smart%20Plant%20Monitor%20Power.PNG">
