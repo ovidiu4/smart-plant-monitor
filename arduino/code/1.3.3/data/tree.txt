@@ -1,0 +1,8 @@
+config.html
+firmware.html
+index.html
+script.js
+sensors.html
+style.css
+wifi.html
+settings.html

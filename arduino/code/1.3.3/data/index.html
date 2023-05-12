@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>SMART PLANT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="style.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div>
+    <form action="/" method="POST">
+      <a href="/">HOME</a> | <a href="wifi">WIFI</a> | <a href="/config">CONFIG HA</a> | <a href="/sensors">SENSORS</a>
+      <br><a href="/settings">SETTINGS</a> | <a href="/firmware">FIRMWARE</a>
+      <h1>SMART PLANT <br>MONITOR </h1>
+      <br>
+      <br>
+      <br> %wifimessage1% <br> %wifimessage2% <br>
+      <br>
+      <br>
+      <br>
+      <input type="submit" value="%restart_button_value%">
+      <br>
+      <br>
+      <br>
+      <br>
+      <b>HOSTNAME:</b>
+      <br> %hostname% <br>
+      <br>
+      <b>Version:</b>
+      <br>%software_version%<br>
+      <br>
+    </form>
+    </div>
+    <script type="text/javascript" src="script.js"></script>
+  </body>
+</html>

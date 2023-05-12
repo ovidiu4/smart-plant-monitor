@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <title>SMART PLANT SETTINGS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+  <canvas id="canvas"></canvas>
+    <div>
+    <form action="/settings" method="POST">
+      <a href="/">HOME</a> | <a href="/wifi">WIFI</a> | <a href="/config">CONFIG HA</a> | <a href="/sensors">SENSORS</a>
+      <br><a href="/settings">SETTINGS</a> | <a href="/firmware">FIRMWARE</a>
+      <h1>SETTINGS</h1>
+      <br>
+	  <br>
+	  <br>
+      <b>
+        <label for="url">Update Interval: <span id="value"></span> min</label>
+        <br>
+      </b>
+
+      <input type="range" min="1" max="120" value="%update_interval_default%" class="slider" id="update_interval" name="update_interval" required>
+      <br>
+      <br>
+	  <br>
+      <br>
+      
+      <br>
+      
+      <br><br>
+      <br>
+      <br>
+      <br>
+      <br><br>
+      <input type="submit" value="Submit">
+      <br>
+    </form>
+	</div>
+    <script type="text/javascript" src="script.js"></script>
+	<script>
+	var slider = document.getElementById("update_interval");
+	var output = document.getElementById("value");
+	output.innerHTML = slider.value;
+
+	slider.oninput = function() {
+	  output.innerHTML = this.value;
+	}
+	</script>
+  </body>
+</html>

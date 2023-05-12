@@ -1,0 +1,93 @@
+<style>
+      html,
+      body {
+        display: flex;
+        align-items: stretch;
+        align-content: stretch;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-image: linear-gradient(180deg, #3498db, #2468ab);
+      }
+
+      #canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        margin: 0 auto;
+        z-index: 0;
+      }
+
+      div {
+        position: absolute;
+        z-index: 1;
+        width: 96%;
+        height: 100%;
+        top: 0px;
+		align: center;
+      }
+
+      #file-input,
+      html {
+        height: 100%;
+      }
+
+      input {
+        width: 100%;
+        height: 44px;
+        border-radius: 4px;
+        margin: 10px auto;
+        font-size: 15px
+      }
+
+      input {
+        background: #ffffff;
+        border: 0;
+        padding: 10px 15px
+      }
+
+      body {
+        background-image: linear-gradient(180deg, #3498db, #2468ab);
+        font-family: sans-serif;
+        font-size: 14px;
+        color: #444
+      }
+
+      #file-input {
+        padding: 0;
+        border: 1px solid #ddd;
+        line-height: 44px;
+        text-align: left;
+        display: block;
+        cursor: pointer
+      }
+
+      #bar,
+      #prgbar {
+        background-color: #f1f1f1;
+        border-radius: 10px
+      }
+
+      #bar {
+        background-color: #3498db;
+        width: 0%;
+        height: 10px
+      }
+
+      form {
+        background: rgba(255, 255, 255, 0.69);
+        width: 260px;
+        height: 470px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      .btn {
+        background: #3498db;
+        color: #fff;
+        cursor: pointer
+      }
+</style>

@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <title>SMART PLANT CONFIG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+  <canvas id="canvas"></canvas>
+    <div>
+    <form action="/config" method="POST">
+      <a href="/">HOME</a> | <a href="/wifi">WIFI</a> | <a href="/config">CONFIG HA</a> | <a href="/sensors">SENSORS</a>
+      <br><a href="/settings">SETTINGS</a> | <a href="/firmware">FIRMWARE</a>
+      <h1>CONFIG</h1>
+      <br>
+      <b>
+        <label for="url">Home Assistant URL:</label>
+        <br>
+      </b>
+      <input type="text" name="url" required>
+      <br>
+      <br>
+      <b>
+        <label for="api">Home Assistant Token:</label>
+        <br>
+      </b>
+      <input type="text" name="api" required>
+      <br>
+      
+      <br><br><b><label for="url">Connection Status:</label></b>
+      <br>
+      <br>%connection_status%
+      <br>
+      <br><br>
+      <input type="submit" value="Submit">
+      <br>
+    </form>
+	</div>
+    <script type="text/javascript" src="script.js"></script>
+  </body>
+</html>
