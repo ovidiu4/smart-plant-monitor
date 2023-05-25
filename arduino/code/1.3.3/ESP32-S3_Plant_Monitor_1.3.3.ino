@@ -116,7 +116,6 @@ float soil_humidity_min = 0;
 float soil_face_value = 0;
 float soil_back_value = 0;
 float soil_measurement_average = 0;
-float soil_humidity = 0;
 float soil_humidity_percent = 0; 
 float soil_temperature = 0;
 float battery_voltage = 0;
@@ -342,7 +341,7 @@ void setup(void)
         delay(100);
         digitalWrite(external_led_pin, LOW);
         delay(100);
-        reset_complete == true;
+        reset_complete = true;
       }
     
       break;
@@ -410,9 +409,11 @@ void setup(void)
   Serial.print("  ");
   
   loop_time = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() < loop_time + wifi_timeout) {
-    delay(1000);
-    Serial.print(".");
+  if(String(ssid) != ""){
+    while (WiFi.status() != WL_CONNECTED && millis() < loop_time + wifi_timeout) {
+      delay(1000);
+      Serial.print(".");
+    }
   }
   Serial.println();
 
@@ -658,22 +659,13 @@ void setup(void)
     display.setRotation(0);
     // draw background
     display.drawExampleBitmap(layout, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
-    display.update();
+    //display.update();
     display.setFont(&FreeMonoBold12pt7b);
     // partial update to full screen to preset for partial update of box window
     // (this avoids strange background effects)
     //display.drawExampleBitmap(layout, sizeof(layout), GxEPD::bm_default | GxEPD::bm_partial_update);
     display.setRotation(3);
-
-    battery_voltage = get_battery_voltage();
-    battery_percent = get_battery_percent();
-    bus_voltage = get_bus_voltage();
-
-    soil_face_value = touchRead(face_pin) / 1000;
-    soil_back_value = touchRead(back_pin) / 1000;
-    delay(100);
-    soil_humidity = (soil_face_value + soil_back_value) / 2;
-  
+    
   }
 
  
@@ -683,16 +675,6 @@ void setup(void)
 
 void loop()
 {
-  soil_face_value = touchRead(face_pin) / 1000;
-  soil_back_value = touchRead(back_pin) / 1000;
-  delay(100);
-  soil_humidity = (soil_face_value + soil_back_value) / 2;
-  soil_humidity_percent = map(soil_humidity,soil_humidity_min,soil_humidity_max,0,100);
-  
-  if(soil_humidity_percent < 0){
-    soil_humidity_percent = 0;
-  }
-
   if(restarting == true){
     ESP.restart();
   }
@@ -716,13 +698,14 @@ void loop()
   battery_voltage = get_battery_voltage();
   battery_percent = get_battery_percent();
   board_temperature = get_pcb_thermistor();
+  soil_humidity_percent = get_soil_humidity();
   soil_temperature = get_thermistor();
   bus_voltage = get_bus_voltage();
   board_check = check_board();
 
   if(boot_into_config == false){
 
-    if(wifi_status = true){
+    if(wifi_status == true){
       send_data_home_assistant();
       home_assistant_deep_sleep_time = get_sleep_home_assistant();
       if(home_assistant_deep_sleep_time < 1){
@@ -818,6 +801,22 @@ float get_battery_percent(){
     }
   }
   return -1;
+}
+
+float get_soil_humidity(){
+  soil_face_value = touchRead(face_pin) / 1000;
+  soil_back_value = touchRead(back_pin) / 1000;
+  delay(100);
+  float soilHumidity = (soil_face_value + soil_back_value) / 2;
+  float percentage = map(soilHumidity,soil_humidity_min,soil_humidity_max,0,100);
+  
+  if(percentage < 0){
+    percentage = 0;
+  } else if (percentage > 100){
+    percentage = 100;
+  }
+  
+  return percentage;
 }
 
 float get_thermistor(){
@@ -935,9 +934,9 @@ void display_update_humidity_icon(){
       display.drawExampleBitmap(humidity_2, box_y, box_x, 80, 80, GxEPD_BLACK);    
     }else if(soil_humidity_percent > 60 && soil_humidity_percent <= 80){
       display.drawExampleBitmap(humidity_3, box_y, box_x, 80, 80, GxEPD_BLACK);    
-    }else if(soil_humidity_percent > 80 && soil_humidity_percent <= 100){
+    }else if(soil_humidity_percent > 80 && soil_humidity_percent < 100){
       display.drawExampleBitmap(humidity_4, box_y, box_x, 80, 80, GxEPD_BLACK);    
-    }else if(soil_humidity_percent > 100){
+    }else if(soil_humidity_percent >= 100){
       display.drawExampleBitmap(humidity_5, box_y, box_x, 80, 80, GxEPD_BLACK);    
     }
   //}
@@ -945,14 +944,14 @@ void display_update_humidity_icon(){
   display.setRotation(3);
   
   
-  if(soil_humidity_percent < 0 | check_board()==false){
+  if(soil_humidity_percent < 0 || check_board()==false){
     display.setCursor(24, 150);
     display.print("ERR!");
   }else if(soil_humidity_percent >= 0 && soil_humidity_percent < 10){
     display.setCursor(40, 150);
     display.print(soil_humidity_percent,0);
     display.print("%");
-  }else if(soil_humidity_percent >= 10 && soil_humidity_percent < 99){
+  }else if(soil_humidity_percent >= 10 && soil_humidity_percent <= 99){
     display.setCursor(32, 150);
     display.print(soil_humidity_percent,0);
     display.print("%");
