@@ -459,6 +459,22 @@ void setup(void)
   }
   MDNS.addService("http", "tcp", 80);
 
+  //Ini display for both normal and confniguration mode.
+  //display.init(115200); // enable diagnostic output on Serial
+  display.init(); // disable diagnostic output on Serial
+  
+  display.setTextColor(GxEPD_BLACK);
+  display.fillScreen(GxEPD_WHITE);
+  display.setRotation(0);
+  // draw background
+  display.drawExampleBitmap(layout, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
+  //display.update();
+  display.setFont(&FreeMonoBold12pt7b);
+  // partial update to full screen to preset for partial update of box window
+  // (this avoids strange background effects)
+  //display.drawExampleBitmap(layout, sizeof(layout), GxEPD::bm_default | GxEPD::bm_partial_update);
+  display.setRotation(3);
+  
   if(boot_into_config == true){
     Serial.println("*** CONFIG MODE ***");
     server.begin();
@@ -649,23 +665,29 @@ void setup(void)
 
       
     });
-  }else if(boot_into_config == false){
     
-    //display.init(115200); // enable diagnostic output on Serial
-    display.init(); // disable diagnostic output on Serial
+    //Display screen configuration
+    display.fillRect(0, 0, 200, 46, GxEPD_WHITE);
+    display.setCursor(5, 28);
+    display.println("Configuration");
+    display.setCursor(0, 70);
+    display.println(WiFi.getHostname());
+    display.setFont(&FreeMonoBold9pt7b);
+    if(wifi_status){
+      display.print("Wifi:");
+      display.println(ssid);
+      display.print("IP:");
+      display.println(WiFi.localIP());
+    } else {
+      display.println("==== AP MODE! ====");
+      display.print("IP:");
+      display.println(WiFi.softAPIP());
+    }
     
-    display.setTextColor(GxEPD_BLACK);
-    display.fillScreen(GxEPD_WHITE);
-    display.setRotation(0);
-    // draw background
-    display.drawExampleBitmap(layout, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
-    //display.update();
     display.setFont(&FreeMonoBold12pt7b);
-    // partial update to full screen to preset for partial update of box window
-    // (this avoids strange background effects)
-    //display.drawExampleBitmap(layout, sizeof(layout), GxEPD::bm_default | GxEPD::bm_partial_update);
-    display.setRotation(3);
-    
+    display_update_date_time();
+    display.updateWindow(0, 0, 200, 200, true);
+
   }
 
  
@@ -754,6 +776,13 @@ void loop()
     digitalWrite(IRint, 1);
     
     esp_deep_sleep_start();
+  } else {
+    if(rtc.getTime("%S").toInt() == 0) {
+      display.fillRect(0, 170, 200, 20, GxEPD_WHITE);
+      display_update_date_time();
+      display.updateWindow(0, 170, 200, 20, true);
+    }
+    delay(1000);
   }
   
   if(firmware_code == 1 && perform_update == true && wifi_status == true){
