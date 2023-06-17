@@ -3,14 +3,12 @@
   https://github.com/ovidiu4/smart-plant-monitor
 */
 
+#define ENABLE_GxEPD2_GFX 0
+
 #include "images.h"
-#include <GxEPD.h>
-//#include <GxGDEH0154D67/GxGDEH0154D67.h>  // 1.54" b/w
-#include <GxGDEH0154Z90/GxGDEH0154Z90.h>  // 1.54" b/w/r 200x200 SSD1681
-#include <GxIO/GxIO_SPI/GxIO_SPI.h>
-#include <GxIO/GxIO.h>
-#include <Fonts/FreeMonoBold9pt7b.h>
-#include <Fonts/FreeMonoBold12pt7b.h>
+#include <GxEPD2.h>
+#include <GxEPD2_BW.h>
+#include <U8g2_for_Adafruit_GFX.h>
 
 #include <WiFi.h>
 #include <AsyncTCP.h>
@@ -180,6 +178,7 @@ bool board_check = false;
 bool home_assistant_connection = false;
 bool wifi_saved_eeprom = false;
 bool config_saved_eeprom = false;
+RTC_DATA_ATTR bool first_boot = true;
 // ---------- OTHER ---------- //
 
 String restart_button_value = "RESTART";
@@ -190,9 +189,9 @@ Adafruit_AHTX0 aht;
 Adafruit_LTR303 ltr = Adafruit_LTR303();
 AsyncWebServer server(80);
 
-GxIO_Class io(SPI, /*CS*/ CS_Pin, /*DC*/ DC_Pin, /*RST*/ RES_Pin); 
-GxEPD_Class display(io, /*RST*/ RES_Pin, /*BUSY*/ BUSY_Pin); 
+GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(/*CS=5*/ CS_Pin, /*DC=*/ DC_Pin, /*RST=*/ RES_Pin, /*BUSY=*/ BUSY_Pin));
 
+U8G2_FOR_ADAFRUIT_GFX u8g2Fonts;
 
 
 void setup(void)
@@ -459,22 +458,27 @@ void setup(void)
   }
   MDNS.addService("http", "tcp", 80);
 
-  //Ini display for both normal and confniguration mode.
-  //display.init(115200); // enable diagnostic output on Serial
-  display.init(); // disable diagnostic output on Serial
+  //Ini display for both normal and configuration mode.
+  Serial.print("Bool First_boot: ");
+  Serial.println(first_boot);
   
+  display.init(0, first_boot); //115200 enable diagnostic output on Serial
   display.setTextColor(GxEPD_BLACK);
-  display.fillScreen(GxEPD_WHITE);
-  display.setRotation(0);
-  // draw background
-  display.drawExampleBitmap(layout, 0, 0, GxEPD_WIDTH, GxEPD_HEIGHT, GxEPD_BLACK);
-  //display.update();
-  display.setFont(&FreeMonoBold12pt7b);
-  // partial update to full screen to preset for partial update of box window
-  // (this avoids strange background effects)
-  //display.drawExampleBitmap(layout, sizeof(layout), GxEPD::bm_default | GxEPD::bm_partial_update);
-  display.setRotation(3);
   
+  u8g2Fonts.begin(display); // connect u8g2 procedures to Adafruit GFX
+  uint16_t bg = GxEPD_WHITE;
+  uint16_t fg = GxEPD_BLACK;
+  u8g2Fonts.setForegroundColor(fg);         // apply Adafruit GFX color
+  u8g2Fonts.setBackgroundColor(bg);
+  if(first_boot == true){
+    display.firstPage();
+    do{
+      display.setRotation(0);
+      display.fillScreen(GxEPD_WHITE);
+      display.drawInvertedBitmap(0, 0, layout, GxEPD2_154_D67::WIDTH, GxEPD2_154_D67::HEIGHT, GxEPD_BLACK);
+    }while (display.nextPage());
+  }
+
   if(boot_into_config == true){
     Serial.println("*** CONFIG MODE ***");
     server.begin();
@@ -495,7 +499,6 @@ void setup(void)
     server.on("/", HTTP_POST, [](AsyncWebServerRequest *request){
       restarting = true;
       request->send(SPIFFS, "/index.html", String(), false, processor);
-      
     });
     
     server.on("/wifi", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -540,13 +543,9 @@ void setup(void)
         wifi_saved_eeprom = false;
       }
       
-  
       request->send(SPIFFS, "/wifi.html", String(), false, processor);
-  
     });
-    
-  
-  
+
     server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request){
       test_connection_code = test_home_assistant_connection();
       request->send(SPIFFS, "/config.html", String(), false, processor);
@@ -661,38 +660,37 @@ void setup(void)
         }
       }
       request->send(SPIFFS, "/firmware.html", String(), false, processor);  
-      
-
-      
     });
-    
-    //Display screen configuration
-    display.fillRect(0, 0, 200, 46, GxEPD_WHITE);
-    display.setCursor(5, 28);
-    display.println("Configuration");
-    display.setCursor(0, 70);
-    display.println(WiFi.getHostname());
-    display.setFont(&FreeMonoBold9pt7b);
-    if(wifi_status){
-      display.print("Wifi:");
-      display.println(ssid);
-      display.print("IP:");
-      display.println(WiFi.localIP());
-    } else {
-      display.println("==== AP MODE! ====");
-      display.print("IP:");
-      display.println(WiFi.softAPIP());
-    }
-    
-    display.setFont(&FreeMonoBold12pt7b);
-    display_update_date_time();
-    display.updateWindow(0, 0, 200, 200, true);
 
+    //Display screen configuration
+    do{
+      display.setRotation(3);
+      display.fillRect(0, 0, 200, 46, GxEPD_WHITE);
+      u8g2Fonts.setFont(u8g2_font_crox5tb_tr);
+      u8g2Fonts.setCursor(25, 28);
+      u8g2Fonts.print("Configuration");
+      
+      u8g2Fonts.setCursor(0, 70);
+      u8g2Fonts.setFont(u8g2_font_helvR12_tr);
+      u8g2Fonts.println(WiFi.getHostname());
+      if(wifi_status){
+        u8g2Fonts.print("Wifi:");
+        u8g2Fonts.println(ssid);
+        u8g2Fonts.print("IP:");
+        u8g2Fonts.println(WiFi.localIP());
+      } else {
+        u8g2Fonts.println("===== AP MODE! =====");
+        u8g2Fonts.print("IP:");
+        u8g2Fonts.println(WiFi.softAPIP());
+      }
+    }while (display.nextPage());
+    
+    soil_humidity_percent = get_soil_humidity();
+    display_update_capacitance_config();
+    display_update_date_time();
   }
 
- 
   Serial.println("*** SETUP DONE ***");
-  
 }
 
 void loop()
@@ -731,19 +729,16 @@ void loop()
       send_data_home_assistant();
       home_assistant_deep_sleep_time = get_sleep_home_assistant();
       if(home_assistant_deep_sleep_time < 1){
-       Serial.println("  ERROR Home Assistant Sleep!");
-       Serial.print("  Keeping Sleep Time: ");
-       Serial.println(deep_sleep_time);
+        Serial.println("  ERROR Home Assistant Sleep!");
+        Serial.print("  Keeping Sleep Time: ");
+        Serial.println(deep_sleep_time);
       }else{
         deep_sleep_time = home_assistant_deep_sleep_time * 60000000; //From minutes to uS
         Serial.print("  Updated Home Assistant Sleep: ");
         Serial.println(deep_sleep_time);
       }
-      
     }
-    WiFi.disconnect(true);
-    WiFi.mode(WIFI_OFF);
-    
+        
     Serial.println("*** UPDATING DISPLAY ***");
     display_update_temperature();
     display_update_battery();
@@ -752,37 +747,50 @@ void loop()
     display_update_light_icon();
     //display_update_capacitance();
     display_update_date_time();
-    
-    display.updateWindow(0, 0, 200, 200, true);
-
+      
+    delay(500);
+    display.powerOff();
     Serial.println("*** UPDATING DISPLAY DONE***");
+
+      if(first_boot = false && rtc.getTime("%H%M").toInt() == 0) {
+        Serial.println("Set first boot to true for full refresh screen");
+        first_boot = true;
+      } else {
+        first_boot = false;
+      }
     
-        
-    esp_sleep_enable_ext0_wakeup(wakeup_pin,0);
-    esp_sleep_enable_timer_wakeup(deep_sleep_time);
+      WiFi.disconnect(true);
+      WiFi.mode(WIFI_OFF);
+      
+      if(rtc.getTime("%S").toInt() <= 55) {
+        deep_sleep_time = deep_sleep_time - (rtc.getTime("%S").toInt() * 1000000) - 2000000;
+      }
+      esp_sleep_enable_ext0_wakeup(wakeup_pin,0);
+      esp_sleep_enable_timer_wakeup(deep_sleep_time);
+      
+      Serial.println("*** SLEEPING ***");
+      Serial.print("  See you in: ");
+      Serial.print(deep_sleep_time);
+      Serial.println(" uS");
+      digitalWrite(external_led_pin, HIGH);
+      delay(200);
+      digitalWrite(external_led_pin, LOW);
+      
+      ltr.enable(false);
+      periph_module_disable(PERIPH_I2C0_MODULE);  
+      digitalWrite(SDA, 0);
+      digitalWrite(SCL, 0);
+      digitalWrite(IRint, 1);
+      
+      esp_deep_sleep_start();
     
-    Serial.println("*** SLEEPING ***");
-    Serial.print("  See you in: ");
-    Serial.print(deep_sleep_time);
-    Serial.println(" uS");
-    digitalWrite(external_led_pin, HIGH);
-    delay(200);
-    digitalWrite(external_led_pin, LOW);
-    
-    ltr.enable(false);
-    periph_module_disable(PERIPH_I2C0_MODULE);  
-    digitalWrite(SDA, 0);
-    digitalWrite(SCL, 0);
-    digitalWrite(IRint, 1);
-    
-    esp_deep_sleep_start();
   } else {
     if(rtc.getTime("%S").toInt() == 0) {
-      display.fillRect(0, 170, 200, 20, GxEPD_WHITE);
+      display_update_capacitance_config();
       display_update_date_time();
-      display.updateWindow(0, 170, 200, 20, true);
     }
-    delay(1000);
+    first_boot = false;
+    delay(800);
   }
   
   if(firmware_code == 1 && perform_update == true && wifi_status == true){
@@ -888,187 +896,223 @@ float get_pcb_thermistor(){
 void display_update_temperature(){
   uint16_t box_x = 0;
   uint16_t box_y = 0;
-  uint16_t box_w = 58;
-  uint16_t box_h = 45;
+  uint16_t box_w = 56;
+  uint16_t box_h = 40;
   uint16_t cursor_y = box_y + 16;
-  //display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-  display.setCursor(box_x, cursor_y);
-  display.println("TEMP");
-  display.print(air_temperature,1);
-  //display.updateWindow(box_x, box_y, box_w, box_h, true);
+  uint16_t cursor_y_2 = cursor_y + 24;
+  display.setRotation(3);
+  display.setPartialWindow(box_x, box_y, box_w, box_h);
+  u8g2Fonts.setFont(u8g2_font_helvR14_tf);
+  display.firstPage();
+   do{
+      display.fillScreen(GxEPD_WHITE);
+      //display.drawRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
+      u8g2Fonts.setCursor(box_x, cursor_y);
+      u8g2Fonts.println("TEMP");
+      u8g2Fonts.setCursor(box_x+5, cursor_y_2);
+      u8g2Fonts.setFont(u8g2_font_crox5tb_tf);
+      u8g2Fonts.print(air_temperature,1);
+    }while(display.nextPage());
 }
 
 void display_update_battery(){
   
-  uint16_t box_x = 72;
+  uint16_t box_x = 64;
   uint16_t box_y = 0;
-  uint16_t box_w = 66;
-  uint16_t box_h = 45;
+  uint16_t box_w = 72;
+  uint16_t box_h = 40;
   uint16_t cursor_y = box_y + 16;
-  //display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-  display.setCursor(box_x, cursor_y);
-  display.println("BATT");
-  if(battery_voltage == 100){
-    display.setCursor(box_x, cursor_y+24);
-  }else{
-    display.setCursor(box_x-9, cursor_y+24);
-  }
-  if(battery_voltage > 4.3){
-    display.print("CHRG");
-  }else{
-    display.print(battery_voltage,2);
-    display.print("V");
-  }
-  //display.updateWindow(box_x, box_y, box_w, box_h, true);
+  uint16_t cursor_y_2 = cursor_y + 24;
+  display.setRotation(3);
+  display.setPartialWindow(box_x, box_y, box_w, box_h);
+  u8g2Fonts.setFont(u8g2_font_helvR14_tf);
+  display.firstPage();
+   do{
+      display.fillScreen(GxEPD_WHITE);
+      //display.drawRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
+      if(battery_voltage > 4.3){
+        u8g2Fonts.setCursor(box_x+12, cursor_y);
+        u8g2Fonts.print("BATT");
+        u8g2Fonts.setCursor(box_x+5, cursor_y_2);
+        u8g2Fonts.print("CHRG");
+      } else {
+        u8g2Fonts.setCursor(box_x+12, cursor_y);
+        u8g2Fonts.print("BATT");
+        u8g2Fonts.setFont(u8g2_font_crox5tb_tf);
+        if(battery_percent == 100){
+          u8g2Fonts.setCursor(box_x+6, cursor_y_2);
+        }else if(battery_percent >= 10){
+          u8g2Fonts.setCursor(box_x+12, cursor_y_2);
+        }else{
+          u8g2Fonts.setCursor(box_x+18, cursor_y_2);
+        }
+          u8g2Fonts.print(battery_percent,0);
+          u8g2Fonts.print("%");
+      }
+    }while(display.nextPage());
 }
 
 void display_update_humidity(){
   uint16_t box_x = 144;
   uint16_t box_y = 0;
   uint16_t box_w = 56;
-  uint16_t box_h = 45;
+  uint16_t box_h = 40;
   uint16_t cursor_y = box_y + 16;
-  //display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-  display.setCursor(box_x, cursor_y);
-  display.println("HUMI");
-  display.setCursor(box_x, cursor_y+24);
-  display.print(air_humidity,1);
-  //display.updateWindow(box_x, box_y, box_w, box_h, true);
+  uint16_t cursor_y_2 = cursor_y + 24;
+  display.setRotation(3);
+  display.setPartialWindow(box_x, box_y, box_w, box_h);
+  u8g2Fonts.setFont(u8g2_font_helvR14_tf);
+  display.firstPage();
+   do{
+      display.fillScreen(GxEPD_WHITE);
+      //display.drawRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
+      u8g2Fonts.setCursor(box_x+3, cursor_y);
+      u8g2Fonts.println("HUMI");
+      u8g2Fonts.setFont(u8g2_font_crox5tb_tf);
+      u8g2Fonts.setCursor(box_x+5, cursor_y_2);
+      u8g2Fonts.print(air_humidity,1);
+    }while(display.nextPage());
 }
 
 void display_update_humidity_icon(){
   uint16_t box_x = 110;
-  uint16_t box_y = 54;
-  uint16_t box_w = 80;
+  uint16_t box_y = 56;
+  uint16_t box_w = 96;
   uint16_t box_h = 80;
-  uint16_t cursor_y = box_y + 16;
+  uint16_t cursor_y = box_x + 42;
   
-  //display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-
-  /*if(check_board()==false){
-    display.setRotation(3);
-    display.setTextColor(GxEPD_BLACK);
-    display.setCursor(88, 90);
-    display.print("NO");
-    display.setCursor(68, 110);
-    display.print("BOARD");
-    display.setTextColor(GxEPD_BLACK);
-  }else{*/
-    display.setRotation(0);
-    if(soil_humidity_percent <= 20){
-      display.drawExampleBitmap(humidity_0, box_y, box_x, 80, 80, GxEPD_BLACK); //68, 60, 80, 80
-    }else if(soil_humidity_percent > 20 && soil_humidity_percent <= 40){
-      display.drawExampleBitmap(humidity_1, box_y, box_x, 80, 80, GxEPD_BLACK);    
-    }else if(soil_humidity_percent > 40 && soil_humidity_percent <= 60){
-      display.drawExampleBitmap(humidity_2, box_y, box_x, 80, 80, GxEPD_BLACK);    
-    }else if(soil_humidity_percent > 60 && soil_humidity_percent <= 80){
-      display.drawExampleBitmap(humidity_3, box_y, box_x, 80, 80, GxEPD_BLACK);    
-    }else if(soil_humidity_percent > 80 && soil_humidity_percent < 100){
-      display.drawExampleBitmap(humidity_4, box_y, box_x, 80, 80, GxEPD_BLACK);    
-    }else if(soil_humidity_percent >= 100){
-      display.drawExampleBitmap(humidity_5, box_y, box_x, 80, 80, GxEPD_BLACK);    
-    }
-  //}
-  //display.updateWindow(box_x, box_y, box_w, box_h, true);
-  display.setRotation(3);
-  
-  
-  if(soil_humidity_percent < 0 || check_board()==false){
-    display.setCursor(24, 150);
-    display.print("ERR!");
-  }else if(soil_humidity_percent >= 0 && soil_humidity_percent < 10){
-    display.setCursor(40, 150);
-    display.print(soil_humidity_percent,0);
-    display.print("%");
-  }else if(soil_humidity_percent >= 10 && soil_humidity_percent <= 99){
-    display.setCursor(32, 150);
-    display.print(soil_humidity_percent,0);
-    display.print("%");
-  }else if(soil_humidity_percent >= 100){
-    display.setCursor(24, 150);
-    display.print(soil_humidity_percent,0);
-    display.print("%");
-  }
-  
+  display.setRotation(0);
+  display.setPartialWindow(box_y, box_x, box_w, box_h);
+  u8g2Fonts.setFont(u8g2_font_helvR14_tf);
+  display.firstPage();
+   do{
+      display.fillScreen(GxEPD_WHITE);
+      //display.drawRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
+      if(soil_humidity_percent <= 20){
+        display.drawInvertedBitmap(box_y, box_x, humidity_0, 80, 80, GxEPD_BLACK); //68, 60, 80, 80
+      }else if(soil_humidity_percent > 20 && soil_humidity_percent <= 40){
+        display.drawInvertedBitmap(box_y, box_x, humidity_1, 80, 80, GxEPD_BLACK);    
+      }else if(soil_humidity_percent > 40 && soil_humidity_percent <= 60){
+        display.drawInvertedBitmap(box_y, box_x, humidity_2, 80, 80, GxEPD_BLACK);    
+      }else if(soil_humidity_percent > 60 && soil_humidity_percent <= 80){
+        display.drawInvertedBitmap(box_y, box_x, humidity_3, 80, 80, GxEPD_BLACK);    
+      }else if(soil_humidity_percent > 80 && soil_humidity_percent < 100){
+        display.drawInvertedBitmap(box_y, box_x, humidity_4, 80, 80, GxEPD_BLACK);    
+      }else if(soil_humidity_percent >= 100){
+        display.drawInvertedBitmap(box_y, box_x, humidity_5, 80, 80, GxEPD_BLACK);    
+      }
+      display.setRotation(3);
+    
+      if(soil_humidity_percent < 0 || check_board()==false){
+        u8g2Fonts.setCursor(24, cursor_y);
+        u8g2Fonts.print("ERR!");
+      }else if(soil_humidity_percent >= 0 && soil_humidity_percent < 10){
+        u8g2Fonts.setCursor(40, cursor_y);
+        u8g2Fonts.print(soil_humidity_percent,0);
+        u8g2Fonts.print("%");
+      }else if(soil_humidity_percent >= 10 && soil_humidity_percent <= 99){
+        u8g2Fonts.setCursor(32, cursor_y);
+        u8g2Fonts.print(soil_humidity_percent,0);
+        u8g2Fonts.print("%");
+      }else if(soil_humidity_percent >= 100){
+        u8g2Fonts.setCursor(24, cursor_y);
+        u8g2Fonts.print(soil_humidity_percent,0);
+        u8g2Fonts.print("%");
+      }
+    }while(display.nextPage());
 }
 
 void display_update_light_icon(){
   uint16_t box_x = 10;
-  uint16_t box_y = 54;
-  uint16_t box_w = 80;
+  uint16_t box_y = 56;
+  uint16_t box_w = 96;
   uint16_t box_h = 80;
-  uint16_t cursor_y = box_y + 16;
+  uint16_t cursor_y = 152;
   
   display.setRotation(0);
-  if(ambient_light <= 500){
-    display.drawExampleBitmap(sun_0, box_y, box_x, 80, 80, GxEPD_BLACK); //68, 60, 80, 80
-  }else if(ambient_light > 500 && ambient_light <= 1000){
-    display.drawExampleBitmap(sun_1, box_y, box_x, 80, 80, GxEPD_BLACK);    
-  }else if(ambient_light > 1000 && ambient_light <= 1500){
-    display.drawExampleBitmap(sun_2, box_y, box_x, 80, 80, GxEPD_BLACK);    
-  }else if(ambient_light > 1500 && ambient_light <= 2000){
-    display.drawExampleBitmap(sun_3, box_y, box_x, 80, 80, GxEPD_BLACK);    
-  }else if(ambient_light > 2000){
-    display.drawExampleBitmap(sun_4, box_y, box_x, 80, 80, GxEPD_BLACK);    
-  }
-  display.setRotation(3);
-  if(ambient_light <= 9){
-    display.setCursor(122, 150);
-    display.print(ambient_light,0);
-  }else if(ambient_light > 9 && ambient_light <= 99){
-    display.setCursor(114, 150);
-    display.print(ambient_light,0);
-  }else if(ambient_light > 99 && ambient_light <= 999){
-    display.setCursor(106, 150);
-    display.print(ambient_light,0);
-  }else if(ambient_light > 999 && ambient_light <= 9999){
-    display.setCursor(114, 150);
-    display.print(ambient_light/1000,1);
-    display.print("K");
-  }else if(ambient_light > 9999 && ambient_light <= 99999){
-    display.setCursor(106, 150);
-    display.print(ambient_light/1000,1);
-    display.print("K");
-  }
-  
-  display.print(" LX");
-  
+  display.setPartialWindow(box_y, box_x, box_w, box_h);
+  u8g2Fonts.setFont(u8g2_font_helvR14_tf);
+  display.firstPage();
+   do{
+      display.fillScreen(GxEPD_WHITE);
+      //display.drawRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
+      if(ambient_light <= 500){
+        display.drawInvertedBitmap(box_y, box_x, sun_0, 80, 80, GxEPD_BLACK); //68, 60, 80, 80
+      }else if(ambient_light > 500 && ambient_light <= 1000){
+        display.drawInvertedBitmap(box_y, box_x, sun_1, 80, 80, GxEPD_BLACK);    
+      }else if(ambient_light > 1000 && ambient_light <= 1500){
+        display.drawInvertedBitmap(box_y, box_x, sun_2, 80, 80, GxEPD_BLACK);    
+      }else if(ambient_light > 1500 && ambient_light <= 2000){
+        display.drawInvertedBitmap(box_y, box_x, sun_3, 80, 80, GxEPD_BLACK);    
+      }else if(ambient_light > 2000){
+        display.drawInvertedBitmap(box_y, box_x, sun_4, 80, 80, GxEPD_BLACK);    
+      }
+      display.setRotation(3);
+      if(ambient_light <= 9){
+        u8g2Fonts.setCursor(135, cursor_y);
+        u8g2Fonts.print(ambient_light,0);
+      }else if(ambient_light > 9 && ambient_light <= 99){
+        u8g2Fonts.setCursor(128, cursor_y);
+        u8g2Fonts.print(ambient_light,0);
+      }else if(ambient_light > 99 && ambient_light <= 999){
+        u8g2Fonts.setCursor(120, cursor_y);
+        u8g2Fonts.print(ambient_light,0);
+      }else if(ambient_light > 999 && ambient_light <= 9999){
+        u8g2Fonts.setCursor(128, cursor_y);
+        u8g2Fonts.print(ambient_light/1000,1);
+        u8g2Fonts.print("K");
+      }else if(ambient_light > 9999 && ambient_light <= 99999){
+        u8g2Fonts.setCursor(120, cursor_y);
+        u8g2Fonts.print(ambient_light/1000,1);
+        u8g2Fonts.print("K");
+      }
+      u8g2Fonts.print(" LX");
+    }while(display.nextPage());
 }
 
 
-void display_update_capacitance()
+void display_update_capacitance_config()
 {
-  uint16_t box_x = 55;
-  uint16_t box_y = 0;
-  uint16_t box_w = 90;
+  uint16_t box_x = 0;
+  uint16_t box_y = 120;
+  uint16_t box_w = 200;
   uint16_t box_h = 20;
   uint16_t cursor_y = box_y + 16;
-  //display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-  display.setRotation(2);
-  display.setCursor(box_x, cursor_y);
-  display.print("F:"); 
-  display.print(soil_face_value,0); 
-  
-  display.setCursor(box_x, 199);
-  display.print("B:"); 
-  display.print(soil_back_value,0); 
-  //display.updateWindow(box_x, box_y, box_w, box_h, true);
+
   display.setRotation(3);
+  display.setPartialWindow(box_x, box_y, box_w, box_h);
+  u8g2Fonts.setFont(u8g2_font_helvR12_tr);
+  display.firstPage();
+   do{
+      display.fillScreen(GxEPD_WHITE);
+      //display.drawRect(box_x, box_y, box_w, box_h, GxEPD_BLACK);
+      u8g2Fonts.setCursor(box_x, cursor_y);
+      u8g2Fonts.print("Face: "); 
+      u8g2Fonts.print(soil_face_value,0); 
+      
+      //u8g2Fonts.setCursor(box_x, cursor_y);
+      u8g2Fonts.print(", Back: "); 
+      u8g2Fonts.print(soil_back_value,0);
+    }while(display.nextPage());
 }
 
 void display_update_date_time(){
   uint16_t box_x = 0;
-  uint16_t box_y = 170;
+  uint16_t box_y = 175;
   uint16_t box_w = 200;
-  uint16_t box_h = 20;
+  uint16_t box_h = 25;
   uint16_t cursor_y = box_y + 16;
-  //display.fillRect(box_x, box_y, box_w, box_h, GxEPD_WHITE);
-  display.setCursor(box_x, cursor_y);
-  display.print(String(rtc.getTime("%d/%m/%y %H:%M")));
-  //display.updateWindow(box_x, box_y, box_w, box_h, true);
+
+  display.setRotation(3);
+  display.setPartialWindow(box_x, box_y, box_w, box_h);
+  u8g2Fonts.setFont(u8g2_font_luRS18_tf);
+  display.firstPage();
+   do{
+      display.fillScreen(GxEPD_WHITE);
+      u8g2Fonts.setCursor(box_x, cursor_y);
+      u8g2Fonts.print(String(rtc.getTime("%d/%m/%y %H:%M")));
+    }while(display.nextPage());
 }
-
-
 
 
 bool check_board(){
